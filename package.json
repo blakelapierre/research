@@ -1,0 +1,10 @@
+{
+    "name": "research",
+    "version": "0.0.1",
+    "description": "race your face",
+    "dependencies": {
+        "express": "latest",
+        "underscore": "latest"
+    },
+    "author": "Blake La Pierre"
+}

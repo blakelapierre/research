@@ -1,0 +1,6 @@
+x read pdfs
+read bibtex
+correlate datas
+gui display
+gui editing
+multi-user
