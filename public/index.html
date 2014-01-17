@@ -1,0 +1,85 @@
+<!doctype html>
+<html ng-app="research">
+<head>
+	<title>Research</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet" href="/css/ng-grid.css" />
+	<link type="text/css" rel="stylesheet" href="/css/research.css" />
+
+	<script type="text/javascript" src="/lib/jquery.2.0.3.min.js"></script>
+	<script type="text/javascript" src="/lib/angular.1.2.9.min.js"></script>
+	<script type="text/javascript" src="/lib/angular.ngresource.1.2.9.min.js"></script>
+	<script type="text/javascript" src="/lib/ng-grid-2.0.7.debug.js"></script>
+	<script type="text/javascript" src="/lib/underscore.1.5.2.min.js"></script>
+	<script type="text/javascript" src="/lib/bootstrap.dropdowns.min.js"></script>
+	<script type="text/javascript" src="/lib/pdf.js"></script>
+	<script type="text/javascript" src="/lib/pdf.compatability.js"></script>
+	<script type="text/javascript" src="/lib/ng-pdfviewer.js"></script>
+	<script type="text/javascript" src="/research/research.js"></script>
+
+</head>
+<body ng-controller="ResearchCtrl">
+	<div class="viewport">
+		<div class="papers">
+			<div class="search">
+				<div command-bar class="input-group">
+			      <input type="text" class="form-control" placeholder="Search..." ng-model="papersGridOptions.filterOptions.filterText" ng-keydown="handleKeydown($event)">
+			      <div class="input-group-btn">
+			        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{commandType}} <span class="caret"></span></button>
+			        <ul class="dropdown-menu pull-right">
+			          <li ng-click="commandType='All'"><a href="#">All</a></li>
+			          <li ng-click="commandType='Title'"><a href="#">Title</a></li>
+			          <li ng-click="commandType='Author'"><a href="#">Author</a></li>
+			          <li class="divider"></li>
+			          <li><a href="#">Separated link</a></li>
+			        </ul>
+			      </div><!-- /btn-group -->
+			    </div><!-- /input-group -->
+			</div>
+			<div class="papers-grid" ng-grid="papersGridOptions">
+			</div>
+		</div>
+		<div class="paper-detail container">
+			<div class="row paper-row">
+				<div class="col-xs-6">
+					<h2 class="text-center">{{selectedPaper.title}}</h2>
+					<h5 class="text-center" ng-repeat="author in selectedPaper.authors">{{author.name}}</h5>
+					<h5 class="text-center"><a href="{{selectedPaper.url}}">{{selectedPaper.url}}</a></h5>
+
+					<p class="comments">Comments: <span>{{selectedPaper.comments}}</span></p>
+
+					<form class="form-horizontal" role="form">
+						<div class="form-group" ng-repeat="(key, value) in selectedPaper.bibtex">
+							<label for="input-{{key}}" class="col-sm-2 control-label">{{key}}:</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="input-{{key}}" ng-model="selectedPaper.bibtex[key]" />
+							</div>
+						</div>
+					</form>
+					
+				</div>
+				<div class="col-xs-6 paper-column">
+					<div class="paper-loading text-center" ng-hide="showPDF">Loading PDF...</div>
+					<div class="paper-pdf" ng-show="showPDF">
+						<div class="paper-pdf-canvas">
+							<pdfviewer src="{{currentPaperUrl}}" id="paper-canvas"></canvas>
+						</div>
+						<div class="paper-pdf-controls">
+							<div class="btn-group">
+								<button type="button" class="btn btn-default" ng-click="zoomOut()"><span class="glyphicon glyphicon-zoom-out"></span></button>
+								<button type="button" class="btn btn-default" ng-click="zoomIn()"><span class="glyphicon glyphicon-zoom-in"></span></button>
+								<button type="button" class="btn btn-default" ng-click="previousPage()"><span class="glyphicon glyphicon-arrow-left"></span></button>
+								<button type="button" class="btn btn-default" ng-click="nextPage()"><span class="glyphicon glyphicon-arrow-right"></span></button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+.viewport {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.search {
+	position: absolute;
+	width: 100%;
+	padding: 5px 30px;
+	
+}
+
+.papers {
+	position: relative;
+	width: 100%;
+	height: 30%;
+	overflow: auto;
+}
+
+.paper-detail {
+	position: relative;
+	width: 100%;
+	height: 70%;
+	overflow: auto;
+}
+
+.papers-grid {
+	border: solid 1px #999;
+	width: 100%;
+	height: 100%;
+	padding-top: 46px;
+}
+
+.paper-row {
+	height: 100%;
+}
+
+.paper-row .col-xs-6 {
+	height: 100%;
+	overflow: auto;
+}
+
+.paper-column {
+	padding: 0;
+	overflow: hidden;
+}
+
+.paper-loading {
+	background-color: #ccc;
+	border: solid 1px #999;
+	width: 100%;
+	height: 100%;
+}
+
+.paper-pdf {
+	width: 100%;
+	height: 100%;
+}
+
+.paper-pdf-canvas {
+	height: 95%;
+	width: 100%;
+	overflow: auto;
+}
+
+.paper-pdf-controls {
+	height: 5%;
+	width: 100%;
+	background-color: #ddd;
+
+}
+
+#paper-canvas {
+	z-index: 9999;
+}
