@@ -29,49 +29,27 @@ angular.module('research', ['ngResource', 'ngGrid', 'ngPDFViewer'])
 	$scope.zoomOut = $scope.viewer.zoomOut;
 	$scope.zoomIn = $scope.viewer.zoomIn;
 
-	$scope.$watchCollection('selectedPapers', function(newValue, oldValue) {
-		$scope.selectedPaper = newValue.length > 0 ? newValue[0] : null;
-		if ($scope.selectedPaper == null) return;
+	$scope.selected = {};
 
-		var url = $scope.selectedPaper.url;
+	$scope.$watchCollection('selectedPapers', function(newValue, oldValue) {
+		$scope.selected.paper = newValue.length > 0 ? newValue[0] : null;
+		if ($scope.selected.paper == null) return;
+
+		var url = $scope.selected.paper.url;
 		$scope.currentPaperUrl = url;
 
 		$scope.showPDF = true;
-
-
-
-	 //    var canvas = document.getElementById('paper-canvas'),
-	 //    	context = canvas.getContext('2d');
-	    
-	 //    $scope.showPDF = false;
-	 //    $timeout(function() {
-	 //    	if (url != $scope.currentPaperUrl) return;
-
-		//     PDFJS.getDocument(url).then(function(pdf) {
-		// 		pdf.getPage(1).then(function(page) {
-		// 			if (url != $scope.currentPaperUrl) return;
-
-		// 			var scale = 1.5,
-		// 				viewport = page.getViewport(scale);
-
-		// 			canvas.height = viewport.height;
-		// 			canvas.width = viewport.width;
-
-		// 			page.render({canvasContext: context, viewport: viewport});
-		// 			$scope.showPDF = true;
-		// 			console.log($scope.showPDF);
-		// 			$scope.$apply();
-		// 		});
-		//     });
-		// }, 500);
 	});
 
-	var Paper = $resource('/papers/:id');
+	var Paper = $resource('/papers/:id', {id: '@id'});
 
-	Paper.get(function(papers, headers) {
-		console.log(papers);
-		$scope.papers = papers.papers;
-		$scope.selectedPapers.splice(0, 1, papers.papers[0]);
+	Paper.query(function(papers, headers) {
+		_.each(papers, function(paper) {
+			paper.authorsString = _.pluck(paper.authors, 'name').join(' and ');
+			paper.keywordsString = (paper.keywords || []).join(', ');
+		});
+		$scope.papers = papers;
+		$scope.selectedPapers.splice(0, 1, papers[0]);
 	});
 
 	$scope.papers = [{
@@ -88,12 +66,15 @@ angular.module('research', ['ngResource', 'ngGrid', 'ngPDFViewer'])
 
 	var executeCommand = function() {
 		var command = $scope.command;
-
-
 	};
 
 	$scope.handleKeydown = function(event) {
 		if (event.which == 13) executeCommand();
+	};
+
+	$scope.bibtexUpdated = function() {
+		console.log($scope.selected);
+		$scope.selected.paper.$save();
 	};
 }])
 .directive('commandBar', function() {

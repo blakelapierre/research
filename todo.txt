@@ -1,6 +1,6 @@
 x read pdfs
-read bibtex
-correlate datas
-gui display
-gui editing
+x read bibtex
+x correlate datas
+x gui display
+x gui editing
 multi-user
