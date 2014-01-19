@@ -32,6 +32,7 @@ directive('pdfviewer', [ '$parse', function($parse) {
 			$scope.pageNum = 1;
 			$scope.pdfDoc = null;
 			$scope.scale = 1.5;
+			$scope.pageRotation = 0;
 
 			$scope.documentProgress = function(progressData) {
 				if ($scope.loadProgress) {
@@ -40,7 +41,6 @@ directive('pdfviewer', [ '$parse', function($parse) {
 			};
 
 			$scope.loadPDF = function(path) {
-				console.log('loadPDF ', path);
 				PDFJS.getDocument(path, null, null, $scope.documentProgress).then(function(_pdfDoc) {
 					$scope.pdfDoc = _pdfDoc;
 					$scope.renderPage($scope.pageNum, function(success) {
@@ -48,6 +48,20 @@ directive('pdfviewer', [ '$parse', function($parse) {
 							$scope.loadProgress({state: "finished", loaded: 0, total: 0});
 						}
 					});
+
+					var text = [];
+					for (var i = 0; i < _pdfDoc.numPages; i++) {
+						_pdfDoc.getPage(i).then(function(page) {
+							page.getTextContent().then(function(content) {
+								for (var j = 0; j < content.bidiTexts.length; j++) {
+									text.push(content.bidiTexts[j].str);
+								}
+							});
+						});
+					}
+
+					setTimeout(function() { console.log(text.join(' ')); }, 2000);
+
 				}, function(message, exception) {
 					console.log("PDF load error: " + message);
 					if ($scope.loadProgress) {
@@ -57,13 +71,17 @@ directive('pdfviewer', [ '$parse', function($parse) {
 			};
 
 			$scope.renderPage = function(num, callback) {
-				console.log('renderPage ', num);
 				$scope.pdfDoc.getPage(num).then(function(page) {
-					var viewport = page.getViewport($scope.scale);
+					console.log(page);
+					var viewport = page.getViewport($scope.scale, $scope.pageRotation);
 					var ctx = canvas.getContext('2d');
 
 					canvas.height = viewport.height;
 					canvas.width = viewport.width;
+
+					page.getTextContent().then(function(text) { console.log('text:', text); });
+
+					//ctx.rotate(Math.PI / 4);
 
 					page.render({ canvasContext: ctx, viewport: viewport }).then(
 						function() { 
@@ -117,18 +135,31 @@ directive('pdfviewer', [ '$parse', function($parse) {
 				}
 			});
 
-			$scope.$on('pdfviewer.zoomIn', function(evt, id, page) {
+			$scope.$on('pdfviewer.zoomIn', function(evt, id) {
 				if (id !== instance_id) return;
 
 				$scope.scale *= 1.1;
 				$scope.renderPage($scope.pageNum);
 			});
 
-			$scope.$on('pdfviewer.zoomOut', function(evt, id, page) {
+			$scope.$on('pdfviewer.zoomOut', function(evt, id) {
 				if (id !== instance_id) return;
 
 				$scope.scale *= 0.9;
 				$scope.renderPage($scope.pageNum);
+			});
+
+			var rotatePage = function(degrees) {
+				$scope.pageRotation += degrees;
+				$scope.renderPage($scope.pageNum);
+			};
+
+			$scope.$on('pdfviewer.rotate90DegreesClockwise', function(evt, id) {
+				rotatePage(90);
+			});
+
+			$scope.$on('pdfviewer.rotate90DegreesCounterclockwise', function(evt, id) {
+				rotatePage(-90);
 			});
 		} ],
 		link: function(scope, iElement, iAttr) {
@@ -174,6 +205,12 @@ service("PDFViewerService", [ '$rootScope', function($rootScope) {
 			},
 			zoomIn: function() {
 				$rootScope.$broadcast('pdfviewer.zoomIn', instance_id);
+			},
+			rotate90DegreesClockwise: function() {
+				$rootScope.$broadcast('pdfviewer.rotate90DegreesClockwise', instance_id);
+			},
+			rotate90DegreesCounterclockwise: function() {
+				$rootScope.$broadcast('pdfviewer.rotate90DegreesCounterclockwise', instance_id);
 			}
 		};
 	};

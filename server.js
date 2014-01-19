@@ -3,6 +3,7 @@ var fs = require('fs'),
 	express = require('express'),
 	_ = require('underscore'),
 	BibtexParser = require('./lib/BibtexParser.js'),
+	makeDB = require('./public/research/db.js'),
     app = express(),
 	port = 3007;
 
@@ -124,18 +125,21 @@ var loadDatabase = function(name) {
 };
 
 
-var databaseName = 'db.json';
+var databaseName = 'db.json',
+	db;
 if (fs.existsSync(databaseName)) {
-	var db = loadDatabase(databaseName);
+	db = loadDatabase(databaseName);
 	papers = db.papers;
 	directories = db.directories;
 }
 else {
-	var db = loadPapers();
+	db = loadPapers();
 	papers = db.papers;
 	directories = db.directories;
 	saveDatabase(databaseName, db);
 }
+
+var d = makeDB(db);
 
 app.get('/papers', function(req, res) {
 	res.json(papers);
@@ -150,13 +154,35 @@ app.post('/papers/:id', function(req, res) {
 
 	var id = req.params.id,
 		data = req.body,
-		paper = _.find(papers, function(paper) { return paper.id == id; });
+		//paper = _.find(papers, function(paper) { return paper.id == id; });
+		paper = d.navigateTo('papers.' + id);
 
+	//console.log('paper:', paper);
 	//console.log(_.keys(data), _.keys(paper));
-	console.log('diff', getDifferences(paper, data));
+	//console.log('diff', getDifferences(paper, data));
 
 	if (paper) {
-		_.extend(paper, data);
+		var diff = getDifferences(paper, data);
+
+		var mods = {};
+		var getModifications = function(diff, path) {
+			for (var key in diff) {
+				var value = diff[key],
+					keyPath = path + '.' + key;
+				if (_.isObject(value)) getModifications(value, keyPath);
+				else mods[keyPath] = value;
+			}
+		};
+
+		getModifications(diff, 'papers.' + id)
+		console.log('mods:', mods);
+
+		//console.log('diff:', diff);
+		if (diff) d.processRequest({action: 'modify', modifications: mods});
+
+		console.log(db.papers[id]);
+		//console.log(d.history);
+		//_.extend(paper, data);
 		//saveDatabase(databaseName, db);
 	}
 });

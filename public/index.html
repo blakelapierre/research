@@ -21,6 +21,7 @@
 	<script type="text/javascript" src="/research/research.js"></script>
 
 	<script type="text/javascript" src="/research/bdb.js"></script>
+	<script type="text/javascript" src="/research/db.js"></script>
 
 </head>
 <body ng-controller="ResearchCtrl">
@@ -65,16 +66,33 @@
 				</div>
 				<div class="col-xs-6 paper-column">
 					<div class="paper-loading text-center" ng-hide="showPDF">Loading PDF...</div>
-					<div class="paper-pdf" ng-show="showPDF">
+					<div ng-show="showPDF" ng-class="{'paper-pdf': true, 'paper-pdf-fullscreen': isFullscreen}">
 						<div class="paper-pdf-canvas">
 							<pdfviewer src="{{currentPaperUrl}}" id="paper-canvas"></canvas>
 						</div>
 						<div class="paper-pdf-controls">
 							<div class="btn-group">
-								<button type="button" class="btn btn-default" ng-click="zoomOut()"><span class="glyphicon glyphicon-zoom-out"></span></button>
-								<button type="button" class="btn btn-default" ng-click="zoomIn()"><span class="glyphicon glyphicon-zoom-in"></span></button>
-								<button type="button" class="btn btn-default" ng-click="previousPage()"><span class="glyphicon glyphicon-arrow-left"></span></button>
-								<button type="button" class="btn btn-default" ng-click="nextPage()"><span class="glyphicon glyphicon-arrow-right"></span></button>
+								<button type="button" class="btn btn-default" ng-click="zoomOut()" title="Zoom Out 10%">
+									<span class="glyphicon glyphicon-zoom-out"></span>
+								</button>
+								<button type="button" class="btn btn-default" ng-click="zoomIn()" title="Zoom In 10%">
+									<span class="glyphicon glyphicon-zoom-in"></span>
+								</button>
+								<button type="button" class="btn btn-default" ng-click="previousPage()" title="Previous Page">
+									<span class="glyphicon glyphicon-arrow-left"></span>
+								</button>
+								<button type="button" class="btn btn-default" ng-click="nextPage()" title="Next Page">
+									<span class="glyphicon glyphicon-arrow-right"></span>
+								</button>
+								<button type="button" class="btn btn-default" ng-click="rotateCounterclockwise()" title="Rotate 90 &#176; Counter-clockwise">
+									<span class="glyphicon glyphicon-share-alt glyphicon-flip"></span>
+								</button>
+								<button type="button" class="btn btn-default" ng-click="rotateClockwise()" title="Rotate 90 &#176; Clockwise">
+									<span class="glyphicon glyphicon-share-alt"></span>
+								</button>
+								<button type="button" class="btn btn-default" ng-click="isFullscreen = !isFullscreen"  title="Go Fullscreen">
+									<span class="glyphicon glyphicon-fullscreen"></span>
+								</button>
 							</div>
 						</div>
 					</div>

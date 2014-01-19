@@ -11,6 +11,9 @@ angular.module('research', ['ngResource', 'ngGrid', 'ngPDFViewer'])
 			field: 'title',
 			displayName: 'Title'
 		},{
+			field: 'journal',
+			displayName: 'Journal'
+		},{
 			field: 'authorsString',
 			displayName: 'Authors'
 		},{
@@ -18,7 +21,6 @@ angular.module('research', ['ngResource', 'ngGrid', 'ngPDFViewer'])
 		}],
 		selectedItems: $scope.selectedPapers,
 		multiSelect: false,
-		showFilter: true,
 		filterOptions: {
 			filterText: ''
 		}
@@ -28,6 +30,9 @@ angular.module('research', ['ngResource', 'ngGrid', 'ngPDFViewer'])
 	$scope.previousPage = $scope.viewer.prevPage;
 	$scope.zoomOut = $scope.viewer.zoomOut;
 	$scope.zoomIn = $scope.viewer.zoomIn;
+	$scope.rotateClockwise = $scope.viewer.rotate90DegreesClockwise;
+	$scope.rotateCounterclockwise = $scope.viewer.rotate90DegreesCounterclockwise;
+
 
 	$scope.selected = {};
 

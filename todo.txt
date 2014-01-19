@@ -3,4 +3,5 @@ x read bibtex
 x correlate datas
 x gui display
 x gui editing
+keyword visulization
 multi-user

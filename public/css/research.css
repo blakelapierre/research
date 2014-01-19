@@ -55,8 +55,10 @@
 }
 
 .paper-pdf {
+	background-color: #eee;
 	width: 100%;
 	height: 100%;
+	z-index: 9999;
 }
 
 .paper-pdf-canvas {
@@ -72,6 +74,39 @@
 
 }
 
+.paper-pdf-fullscreen {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	height: 100%;
+	width: 100%;
+	border: solid 1px #999;
+	-webkit-animation: go-fullscreen 0.1s;
+}
+
+@-webkit-keyframes go-fullscreen {
+	from {
+		position: relative;
+		height: 75%;
+		width: 50%;
+		left: 50%;
+		top: 70%;
+	}
+	to {
+		position: fixed;
+		top: 1%;
+		left: 0px;
+		height: 100%;
+		width: 100%;
+		border: solid 1px #999;
+	}
+}
+
 #paper-canvas {
 	z-index: 9999;
+}
+
+.glyphicon-flip {
+	display: inline-block;
+	-webkit-transform: scaleX(-1);
 }
