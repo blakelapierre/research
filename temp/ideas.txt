@@ -1,0 +1,67 @@
+title
+
+heading
+
+body text body text body text body text body text body text body text body text 
+body text body text body text body text body text body text body text body text 
+body text body text body text body text body text body text body text body text 
+body text body text body text body text body text body text body text body text 
+
+|->
+
+img=/img/to/right/floated/image/here
+
+-
+table
+h1	h2	h3	h4	h5	h6
+-
+0	1	2	3	4	5
+5	6	7	9	0	8
+3	5	3	9	0	2
+-
+footer
+some footer text
+-
+
+
+[A Sentence with a citation.][citation_id1] Your own sentence about the preceding sentence. [Another sentence that has a citation.][citation_id2] Some more sentence with an [inline citation][inline_id1].
+
+
+{
+	elements: [
+		{text: }
+	]
+}
+
+
+Bottom-up and top-down interactions are known to be important in determining primary production and plant community composition (Power 1992, Pace et al. 1999, Chase et al. 2000, Schmitz et al. 2000, Cebrian et al. 2009). Particularly in grassland systems, nutrient additions generally result in increased primary production and decreased plant species richness (Clark et al. 2007, Gruner et al. 2008, Cleland and Harpole 2010, Hillebrand 2011, Harpole et al. 2011). The effect of herbivores and their interactions with nutrient availability on primary production and plant community composition are less consistent across grassland systems (Olff and Ritchie 1998, Maron and Crone 2006, Hillebrand et al. 2007, Gruner et al. 2008). The inconsistent effect of herbivores in grassland systems may be due to the wide range of herbivore types and body sizes in these systems (Borer et al. 2005, Bakker et al. 2006). Thus it is important to examine the effects of different suites of herbivores and their interactive effects with nutrient availability on grassland production and plant community composition.
+
+[Bottom-up and top-down interactions are known to be important in determining primary production and plant community composition.][Power_1992, Pace_1999, Chase_2000, Schmitz_2000, Cebrian_2009] [Particularly in grassland systems, nutrient additions generally result in increased primary production and decreased plant species richness.][Clark_2007, Gruner_2008, Cleland_Harpole_2010, Hillebrand_2011, Harpole_2011] [The effect of herbivores and their interactions with nutrient availability on primary production and plant community composition are less consistent across grassland systems.][Olff_Ritchie_1998, Maron_Crone_2006, Hillebrand_2007, Gruner_2008] [The inconsistent effect of herbivores in grassland systems may be due to the wide range of herbivore types and body sizes in these systems.][Borer_2005, Bakker_2006] Thus it is important to examine the effects of different suites of herbivores and their interactive effects with nutrient availability on grassland production and plant community composition.
+
+
+
+
+
+{
+	elements: [
+		{
+			text: 'Bottom-up and top-down interactions are known to be important in determining primary production and plant community composition.',
+			citations: [Power_1992, Pace_1999, Chase_2000, Schmitz_2000, Cebrian_2009]
+		},
+		{
+			text: 'Particularly in grassland systems, nutrient additions generally result in increased primary production and decreased plant species richness.',
+			citations: [Clark_2007, Gruner_2008, Cleland_Harpole_2010, Hillebrand_2011, Harpole_2011]
+		},
+		{
+			text: 'The effect of herbivores and their interactions with nutrient availability on primary production and plant community composition are less consistent across grassland systems.',
+			citations: [Olff_Ritchie_1998, Maron_Crone_2006, Hillebrand_2007, Gruner_2008]
+		},
+		{
+			text: 'The inconsistent effect of herbivores in grassland systems may be due to the wide range of herbivore types and body sizes in these systems.',
+			citations: [Borer_2005, Bakker_2006]
+		},
+		{
+			text: 'Thus it is important to examine the effects of different suites of herbivores and their interactive effects with nutrient availability on grassland production and plant community composition.'
+		}
+	]
+}
