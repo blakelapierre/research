@@ -6191,6 +6191,7 @@ var XRef = (function XRefClosure() {
       parser.buf1 = tableState.parserBuf1;
       parser.buf2 = tableState.parserBuf2;
 
+
       // Outer loop is over subsection headers
       var obj;
 

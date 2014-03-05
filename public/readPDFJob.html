@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+		<title>PDF Extrator Job</title>
+
+		<script type="text/javascript" src="/lib/underscore.1.5.2.min.js"></script>
+		<script type="text/javascript" src="/lib/jquery.2.0.3.min.js"></script>
+		<script type="text/javascript" src="/lib/pdf.js"></script>
+		<script type="text/javascript" src="/lib/pdf.compatability.js"></script>
+
+		
+		<script type="text/javascript">
+			
+			
+			var extractText = function(request, callback) {
+				console.log('extracting', request.path);
+				PDFJS.getDocument(request.path).then(function(doc) {
+					var text = [];
+					for (var i = 0; i <= doc.numPages; i++) {
+						doc.getPage(i).then(function(page) {
+							var pageNumber = page.pageNumber;
+							page.getTextContent().then(function(content) {
+								for (var j = 0; j < content.bidiTexts.length; j++) {
+									text.push(unescape(content.bidiTexts[j].str));
+								}
+								
+								if (pageNumber === doc.numPages) {
+									callback({
+										id: request.id,
+										path: request.path,
+										text: text.join(' ')
+									});
+								}
+							});
+						});
+					}
+				}, function(message, exception) {
+			
+					
+				});
+			};
+
+			var jobCount = 0;
+			var getJob = function() {
+				if (++jobCount > 10) window.location = window.location;
+				$.ajax('/readJob', {
+					success: function(request) {
+						extractText(request, function(result) {
+							$.ajax('/submitJob', {
+								method: 'PUT',
+								data: result,
+								success: function(data) {
+									setTimeout(getJob, 0);
+								},
+								fail: function() {
+									setTimeout(getJob, 0);
+								}
+							});
+						});
+					},
+					fail: function() {
+						setTimeout(getJob, 10 * 1000);
+					}
+				});
+			};
+
+			getJob();
+		</script>
+</head>
+<body>
+</body>
+</html>

@@ -4757,6 +4757,7 @@ var WorkerTransport = (function WorkerTransportClosure() {
           messageHandler.send('test', testObj, null, [testObj.buffer]);
         } catch (ex) {
           info('Cannot use postMessage transfers');
+          console.dir(_.values(ex));
           testObj[0] = 0;
           messageHandler.send('test', testObj);
         }

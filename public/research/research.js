@@ -1,91 +1,60 @@
-angular.module('research', ['ngResource', 'ngGrid', 'ngPDFViewer'])
-.controller('ResearchCtrl', ['$scope', '$resource', '$timeout', 'PDFViewerService', function($scope, $resource, $timeout, pdf) {
-	$scope.viewer = pdf.Instance('paper-canvas');
+var research = angular.module('research', ['ngRoute', 'ngResource', 'ngGrid', 'ngPDFViewer']);
 
-	$scope.commandType = 'All';
-
-	$scope.selectedPapers = [];
-	$scope.papersGridOptions = {
-		data: 'papers',
-		columnDefs: [{
-			field: 'title',
-			displayName: 'Title'
-		},{
-			field: 'journal',
-			displayName: 'Journal'
-		},{
-			field: 'authorsString',
-			displayName: 'Authors'
-		},{
-			field: 'keywordsString'
-		}],
-		selectedItems: $scope.selectedPapers,
-		multiSelect: false,
-		filterOptions: {
-			filterText: ''
-		}
+research.config(function($controllerProvider, $compileProvider, $routeProvider, $filterProvider, $provide) {
+	console.log('research');
+	research.lazy = {
+		controller: $controllerProvider.register,
+		directive: $compileProvider.directive,
+		filter: $filterProvider.register,
+		factory: $provide.factory,
+		service: $provide.service
 	};
 
-	$scope.nextPage = $scope.viewer.nextPage;
-	$scope.previousPage = $scope.viewer.prevPage;
-	$scope.zoomOut = $scope.viewer.zoomOut;
-	$scope.zoomIn = $scope.viewer.zoomIn;
-	$scope.rotateClockwise = $scope.viewer.rotate90DegreesClockwise;
-	$scope.rotateCounterclockwise = $scope.viewer.rotate90DegreesCounterclockwise;
+	var resolveToController = function(controller) {
+		return {
+			templateUrl: controller + '.html',
+			resolve: {
+				load: ['$q', '$rootScope', function($q, $rootScope) {
+					var deferred = $q.defer();
 
+					require([controller + '.js'], function() {
+						$rootScope.$apply(function() {
+							deferred.resolve();
+						});
+					});
 
-	$scope.selected = {};
-
-	$scope.$watchCollection('selectedPapers', function(newValue, oldValue) {
-		$scope.selected.paper = newValue.length > 0 ? newValue[0] : null;
-		if ($scope.selected.paper == null) return;
-
-		var url = $scope.selected.paper.url;
-		$scope.currentPaperUrl = url;
-
-		$scope.showPDF = true;
-	});
-
-	var Paper = $resource('/papers/:id', {id: '@id'});
-
-	Paper.query(function(papers, headers) {
-		_.each(papers, function(paper) {
-			paper.authorsString = _.pluck(paper.authors, 'name').join(' and ');
-			paper.keywordsString = (paper.keywords || []).join(', ');
-		});
-		$scope.papers = papers;
-		$scope.selectedPapers.splice(0, 1, papers[0]);
-	});
-
-	$scope.papers = [{
-		title: '',
-		authors: [{name: ''}],
-		fileName: '',
-		url: '',
-		tags: [{name:''}],
-		comments: [{
-			author: '',
-			comment: ''
-		}]
-	}];
-
-	var executeCommand = function() {
-		var command = $scope.command;
+					return deferred.promise;	
+				}]
+			}
+		};
 	};
 
-	$scope.handleKeydown = function(event) {
-		if (event.which == 13) executeCommand();
-	};
+	$routeProvider.when('/papers', resolveToController('/research/papers/controllers/papers'));
+	$routeProvider.when('/code', resolveToController('/research/code/controllers/code'));
+});
 
-	$scope.bibtexUpdated = function() {
-		console.log($scope.selected);
-		$scope.selected.paper.$save();
-	};
-}])
+research
 .directive('commandBar', function() {
 	return {
 		link: function($scope, element, attributes) {
 
 		}
 	};
+})
+.directive('networkedInput', function() {
+	return {
+		restrict: 'A',
+		require: '?ngModel',
+		link: function(scope, element, attrs, ngModel) {
+			if (!ngModel) return;
+
+			ngModel.$viewChangeListeners.push(function(c) {
+				console.log('change:', c);
+			});
+		}
+	};
+})
+.factory('socket', function($rootScope) {
+	var socket = io.connect('http://' + window.location.host);
+	return socket;
 });

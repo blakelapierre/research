@@ -3,164 +3,126 @@ var fs = require('fs'),
 	express = require('express'),
 	_ = require('underscore'),
 	BibtexParser = require('./lib/BibtexParser.js'),
-	makeDB = require('./public/research/db.js'),
+	papersDB = require('./papersDB.js'),
+	restler = require('restler'),
+	streamifier = require('streamifier'),
+	//searchIndex = new requestJSON.JsonClient("http://localhost:3000"),
+	//readPDFs = require('./readPDFs.js'),
     app = express(),
 	port = 3007;
 
-_.split = function(arr, fn) {
-	var pass = [],
-		fail = [];
-	for (var i = 0; i < arr.length; i++) {
-		var item = arr[i];
-		if (fn(item)) pass.push(item);
-		else fail.push(item);
+
+var databaseName = 'db.json',
+	papersLocation = '[--REDACTED--]',
+	bibtexLocation = '[--REDACTED--]',
+	db = papersDB(databaseName, papersLocation, bibtexLocation);
+
+// db.data.history = [];
+// db.saveDatabase(databaseName);
+
+console.log('db', db);
+
+
+var nextIndex = 0;
+var indexNextPaper = function() {
+	var papersIndex = db.navigateTo('papersIndex');
+
+	if (nextIndex > papersIndex.length) return;
+
+	var	index = papersIndex[nextIndex++];
+	if (index) {
+		console.log('Adding', index.id, index.title, 'to index');
+		index.name = 'test';
+		var data = {};
+		//data['paper-' + index.id] = { title: index.title, text: index.text };
+
+		_.each(papersIndex, function(i) { 
+			data['paper-' + i.id] = { title: i.title, text: i.text };
+		});
+
+		fs.writeFileSync('./paperText.json', JSON.stringify(data));
+		var stat = fs.statSync('./paperText.json');
+		restler.post('http://localhost:3000/indexer', {
+			multipart: true,
+			data: {
+				'document': restler.file('./paperText.json', null, stat.size, null, 'text/json')
+			}
+		}).on('complete', function(data) {
+			console.log('response', data);
+			setTimeout(indexNextPaper, 100);
+		});
 	}
-	return {pass: pass, fail: fail};
 };
+//setTimeout(indexNextPaper, 100);
+
 
 app.use(express.bodyParser());
 app.use(express.static(__dirname + '/public'));
+app.use(express.logger());
 
-app.get('/', function(req, res) {});
-
-var papersLocation = 'c:\\users\\public\\new folder\\correct reference files\\Mendeley Desktop\\';
-
-var loadPapers = function() {
-	var papers = [],
-		directories = [],
-		bibtexLocation = 'c:\\users\\public\\new folder\\correct reference files\\My collection.bib',
-		bibtexText = fs.readFileSync(bibtexLocation).toString(),
-		bibtexEntries = BibtexParser(bibtexText).entries,
-		nextID = 0;
-
-	var files = fs.readdirSync(papersLocation),
-		parts = _.split(files, function(file) {
-						var fileLocation = papersLocation + file,
-							stat = fs.statSync(fileLocation);
-						
-						return !stat.isDirectory();
-					}),
-		directories = parts.fail,
-		papers = _.map(parts.pass, function(file) { 
-			return {
-				id: nextID++,
-				fileName: file,
-				url: '/paper/' + file, 
-				title: file
-			}; 
-		});
-
-	var fields = [],
-		keywords = [];
-	_.each(bibtexEntries, function(entry) {
-		var f = entry.Fields,
-			kw = f.keywords;
-
-		_.each(_.keys(f), function(key) { fields.push(key); });
-
-		if (kw) {
-			_.each(kw.split(','), function(word) {
-				keywords.push(word.trim());
+app.get('/readJob', function(req, res) {
+	console.log('readJob');
+	var papersIndex = db.navigateTo('papersIndex');
+	for (var i = 0; i < papersIndex.length; i++) {
+		var paperIndex = papersIndex[i];
+		if (paperIndex.id != null && (paperIndex.text == null || paperIndex.text == undefined)) {
+			var paper = db.navigateTo('papers.' + paperIndex.id);
+			res.json({
+				id: paperIndex.id,
+				path: paper.url
 			});
+			return;
 		}
-	});
-	console.log(_.uniq(fields), _.uniq(keywords));
+	}
+	res.send(404);
+});
 
-	var parseFileName = function(name) {
-		return name == null ? null : name.replace(/^\:/, '').replace(/\:\.?pdf$/, '');
-	};
-
-	_.each(papers, function(paper) {
-		var paperFileName = path.basename(paper.fileName).toLowerCase().replace('\\', '/').trim();
-		//console.log('searching for', paperFileName);
-		var match = _.find(bibtexEntries, function(entry) { 
-			var file = parseFileName(entry.Fields.file);
-			if (file == null) return false;
-			file = path.basename(file).toLowerCase().replace('\\', '/').trim();
-			
-			return file == paperFileName; 
-		});
-		if (match) {
-			var fields = match.Fields,
-				authors = _.map(fields.author.split(' and '), function(name) { return {name: name.trim()}; }),
-				keywords = (fields.keywords || '').split(',');
-
-			
-			_.extend(paper, {
-				bibtex: fields,
-				title: fields.title,
-				authors: authors,
-				doi: fields.doi,
-				journal: fields.journal,
-				issn: fields.issn,
-				//authorsString: _.pluck(authors, 'name').join(' and ').trim(),
-				keywords: keywords,
-				//keywordsString: fields.keywords,
-				canonicalURL: fields.url
-			});
-
-			delete fields.file;
-			delete fields.title;
-			delete fields.author;
-			delete fields.doi;
-			delete fields.journal;
-			delete fields.issn;
-			delete fields.keywords;
-			delete fields.url;
-		}
-	});	
-
-	return {
-		papers: papers,
-		directories: directories
-	};
-};
-
-var saveDatabase = function(name, db) {
-	fs.writeFileSync(name, JSON.stringify(db, null, '\t'));
-};
-
-var loadDatabase = function(name) {
-	return JSON.parse(fs.readFileSync(name).toString())
-};
-
-
-var databaseName = 'db.json',
-	db;
-if (fs.existsSync(databaseName)) {
-	db = loadDatabase(databaseName);
-	papers = db.papers;
-	directories = db.directories;
-}
-else {
-	db = loadPapers();
-	papers = db.papers;
-	directories = db.directories;
-	saveDatabase(databaseName, db);
-}
-
-var d = makeDB(db);
+app.put('/submitJob', function(req, res) {
+	console.log('submitJob');
+	var paper = db.navigateTo('papers.' + req.body.id);
+	db.processRequest({action: 'modify', path: 'papersIndex.' + paper.id, data: {text: req.body.text}});
+	res.end();
+});
 
 app.get('/papers', function(req, res) {
-	res.json(papers);
+	console.log('*****papers*****');
+	res.json(db.navigateTo('papers'));
+});
+
+app.get('/papers/search/:term', function(req, res) {
+	console.log('*******search********', req.params.term);
+
+	var lunrResults = lunrIndex.search(req.params.term),
+		papers = db.navigateTo('papers'),
+		results = _.map(lunrResults, function(result) {
+			var paper = papers[parseInt(result.ref)];
+			return {
+				id: paper.id,
+				score: result.score,
+				title: paper.title
+			};
+		});
+	res.json(results);
 });
 
 app.get('/paper/:fileName', function(req, res) {
 	var fileName = req.params.fileName;
-	res.sendfile(papersLocation + fileName);
+	console.log(req.url);
+
+	if (req.query.base64 === 'true') {
+		fs.readFile(papersLocation + fileName, {encoding: 'base64'}, function(err, pdf) {
+			res.type('application/pdf');
+			res.send(pdf);
+		});
+	}
+	else res.sendfile(papersLocation + fileName);
 });
 
 app.post('/papers/:id', function(req, res) {
-
 	var id = req.params.id,
 		data = req.body,
-		//paper = _.find(papers, function(paper) { return paper.id == id; });
-		paper = d.navigateTo('papers.' + id);
-
-	//console.log('paper:', paper);
-	//console.log(_.keys(data), _.keys(paper));
-	//console.log('diff', getDifferences(paper, data));
-
+		paper = db.navigateTo('papers.' + id);
+console.log('paper', paper);
 	if (paper) {
 		var diff = getDifferences(paper, data);
 
@@ -174,32 +136,38 @@ app.post('/papers/:id', function(req, res) {
 			}
 		};
 
-		getModifications(diff, 'papers.' + id)
-		console.log('mods:', mods);
+		getModifications(diff, 'papers.' + id);
 
-		//console.log('diff:', diff);
-		if (diff) d.processRequest({action: 'modify', modifications: mods});
-
-		console.log(db.papers[id]);
-		//console.log(d.history);
-		//_.extend(paper, data);
-		//saveDatabase(databaseName, db);
+		if (diff) db.processRequest({action: 'modify', modifications: mods});
 	}
+
+	res.end();
 });
 
-app.listen(port);
+app.get('/savePapers/:really', function(req, res) {
+	if (req.params.really) db.saveDatabase(databaseName);
+
+	res.json({success: true});
+});
+
+var io = require('socket.io').listen(app.listen(port));
+io.set('log level', 0);
+
+io.sockets.on('connection', function(socket) {
+	socket.on('listenTo', function(data) {
+		// validate incoming data? !!
+		console.log('client subscribing to:', data.path);
+		db.subscribeTo(data.path, function(update) {
+			// should/can we use socket.io 'rooms'?
+			socket.emit('update', update);
+		});
+	});
+
+	socket.emit('hello');
+});
+
 console.log('Listening on ' + port);
 
-_.split = function(arr, fn) {
-	var pass = [],
-		fail = [];
-	for (var i = 0; i < arr.length; i++) {
-		var item = arr[i];
-		if (fn(item)) pass.push(item);
-		else fail.push(item);
-	}
-	return {pass: pass, fail: fail};
-};
 
 var getDifferences = function(prev, next) {
 	if (prev == null && next == null) return null;

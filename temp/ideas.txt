@@ -62,6 +62,13 @@ Bottom-up and top-down interactions are known to be important in determining pri
 		},
 		{
 			text: 'Thus it is important to examine the effects of different suites of herbivores and their interactive effects with nutrient availability on grassland production and plant community composition.'
-		}
-	]
+		},
+		...
+	],
+	citations: {
+		Power_1992: 'doc_id',
+		Pace_1999: 'doc_id',
+		Schmitz_2000: 'doc_id',
+		...
+	}
 }
