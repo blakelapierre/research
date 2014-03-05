@@ -1,10 +1,14 @@
 {
     "name": "research",
     "version": "0.0.1",
-    "description": "race your face",
+    "description": "who knows",
     "dependencies": {
         "express": "latest",
-        "underscore": "latest"
+        "underscore": "latest",
+        "socket.io": "latest",
+        "pdf2json": "latest",
+        "restler": "latest",
+        "streamifier": "latest"
     },
     "author": "Blake La Pierre"
 }
