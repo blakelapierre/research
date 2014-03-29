@@ -1,0 +1,101 @@
+<div class="viewport" data-ng-controller="ResearchCtrl">
+	<div class="row search">
+		<div class="offset">
+			<div class="col-lg-1">
+				<div class="input-group">
+					<button ng-click="mode = 'code'" class="btn btn-code">&lt; &gt;</button>
+					<button ng-click="mode = 'papers'" class="btn"><span class="glyphicon glyphicon-search"></span></button>
+				</div>
+			</div>
+			<div class="col-lg-11">
+				<div command-bar class="input-group">
+					<input type="text" class="form-control" placeholder="Search..." ng-model="papersGridOptions.filterOptions.filterText" ng-keydown="handleKeydown($event)">
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{commandType}} <span class="caret"></span></button>
+						<ul class="dropdown-menu pull-right">
+							<li ng-click="commandType='All'"><a href="#">All</a></li>
+							<li ng-click="commandType='Title'"><a href="#">Title</a></li>
+							<li ng-click="commandType='Author'"><a href="#">Author</a></li>
+							<li class="divider"></li>
+							<li><a href="#">Separated link</a></li>
+						</ul>
+					</div><!-- /btn-group -->
+				</div><!-- /input-group -->
+			</div>
+		</div>
+	</div>
+
+	<div class="mode-container" ng-switch="mode">
+		<div class="padding"></div>
+		<div ng-class="{mode: true, 'pop-in': mode == 'papers'}" ng-switch-when="papers">
+			<div class="papers">
+				<div class="papers-grid" ng-grid="papersGridOptions"></div>
+			</div>
+
+			<div class="paper-detail container">
+				<div class="row paper-row">
+					<div class="col-xs-6">
+						<h2 class="text-center">{{selected.paper.title}}</h2>
+						<h5 class="text-center" ng-repeat="author in selected.paper.authors">{{author.name}}</h5>
+						<h5 class="text-center"><a href="{{selected.paper.url}}">{{selected.paper.url}}</a></h5>
+
+						<p class="comments">Comments: <span>{{selected.paper.comments}}</span></p>
+
+						<form class="form-horizontal" role="form">
+							<div class="form-group" ng-repeat="(key, value) in selected.paper.bibtex">
+								<label for="input-{{key}}" class="col-sm-2 control-label">{{key}}:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="input-{{key}}" ng-model="selected.paper.bibtex[key]" ng-blur="bibtexUpdated()" networked-input />
+								</div>
+							</div>
+						</form>
+						
+					</div>
+					<div class="col-xs-6 paper-column">
+						<div class="paper-loading text-center" ng-hide="showPDF">Loading PDF...</div>
+						<div ng-show="showPDF" ng-class="{'paper-pdf': true, 'paper-pdf-fullscreen': isFullscreen}">
+							<div class="paper-pdf-canvas">
+								<pdfviewer src="{{currentPaperUrl}}" id="paper-canvas"></pdfviewer>
+							</div>
+							<div class="paper-pdf-controls">
+								<div class="btn-group">
+									<button type="button" class="btn btn-default" ng-click="zoomOut()" title="Zoom Out 10%">
+										<span class="glyphicon glyphicon-zoom-out"></span>
+									</button>
+									<button type="button" class="btn btn-default" ng-click="zoomIn()" title="Zoom In 10%">
+										<span class="glyphicon glyphicon-zoom-in"></span>
+									</button>
+									<button type="button" class="btn btn-default" ng-click="previousPage()" title="Previous Page">
+										<span class="glyphicon glyphicon-arrow-left"></span>
+									</button>
+									<button type="button" class="btn btn-default" ng-click="nextPage()" title="Next Page">
+										<span class="glyphicon glyphicon-arrow-right"></span>
+									</button>
+									<button type="button" class="btn btn-default" ng-click="rotateCounterclockwise()" title="Rotate 90 &#176; Counter-clockwise">
+										<span class="glyphicon glyphicon-share-alt glyphicon-rotate-counter-clockwise"></span>
+									</button>
+									<button type="button" class="btn btn-default" ng-click="rotateClockwise()" title="Rotate 90 &#176; Clockwise">
+										<span class="glyphicon glyphicon-share-alt glyphicon-rotate-clockwise"></span>
+									</button>
+									<button type="button" class="btn btn-default" ng-click="isFullscreen = !isFullscreen"  title="Go Fullscreen">
+										<span class="glyphicon glyphicon-fullscreen"></span>
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div ng-class="{mode: true, 'pop-in': mode == 'code'}" ng-switch-when="code">
+			<div class="code">
+				<textarea ng-model="user.code"></textarea>
+				<button class="btn" ng-click="codeChanged()">run</button>
+			</div>
+			<div class="page">
+				<div>{{user.code}} {{results}}</div>
+			</div>
+		</div>
+	</div>
+</div>
