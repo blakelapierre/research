@@ -9,8 +9,67 @@ body {
   margin: 0;
   padding: 0;
 
-  input-area {
-    display: flex;
-    flex-direction: column;
+  www-prototype {
+    flex: 1 1 auto;
+
+    left, right {
+      display: flex;
+      flex-direction: column;
+
+      width: 50%;
+      max-height: 100%;
+
+      overflow-y: auto;
+    }
+
+    left {
+      posts-display {
+        flex: 1 1 auto;
+
+        display: flex;
+        flex-direction: column;
+
+        overflow-y: auto;
+
+        post {
+          position: relative;
+
+          display: block;
+
+          margin: 0.1em;
+          padding: 0.1em;
+
+          white-space: pre-wrap;
+
+          border: solid 1px #ccc;
+
+          overlay {
+            position: absolute;
+
+            top: 0;
+            right: 0;
+
+            span {
+              display: inline-block;
+
+              padding: 0.1em;
+
+              color: #55c;
+
+              cursor: pointer;
+
+              user-select: none;
+            }
+          }
+        }
+      }
+
+      input-area {
+        flex: 1 0 auto;
+
+        display: flex;
+        flex-direction: column;
+      }
+    }
   }
 }

@@ -1,28 +1,55 @@
 import { h, render } from 'preact-cycle';
 
-const POST = (state, {target}) => {
-  state.posts.push(target.previousElementSibling.value);
-  target.previousElementSibling.value = '';
+const ADD_POST = (state, {target}) => {
+  const textarea = target.previousElementSibling;
+  state.posts.push(textarea.value);
+  textarea.value = '';
+  textarea.focus();
   return state;
 };
 
 const POSTSDisplay = ({}, {posts}) => (
   <posts-display>
-    {posts.map(post => post)}
+    {posts.map(POST)}
   </posts-display>
+);
+
+const POST = post => (
+  <post>
+    <overlay><span onClick={() => console.log('statistics view')}>s</span></overlay>
+    {post}
+  </post>
 );
 
 const InputArea = ({}, {mutation}) => (
   <input-area>
     <textarea autoFocus></textarea>
-    <button onClick={mutation(POST)}>Post</button>
+    <button onClick={mutation(ADD_POST)}>Post</button>
   </input-area>
+);
+
+const Tags = () => (
+  <tags>
+
+  </tags>
+);
+
+const TagDetail = () => (
+  <tag-detail>
+
+  </tag-detail>
 );
 
 const WWWPrototype = () => (
   <www-prototype>
-    <InputArea />
-    <POSTSDisplay />
+    <left>
+      <POSTSDisplay />
+      <InputArea />
+    </left>
+    <right>
+      <Tags />
+      <TagDetail /> // ?
+    </right>
   </www-prototype>
 );
 
