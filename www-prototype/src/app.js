@@ -1,30 +1,41 @@
 import { h, render } from 'preact-cycle';
 
-const ADD_POST = (state, {target}) => {
+const ADD_UNIT = (state, {target}) => {
   const textarea = target.previousElementSibling;
-  state.posts.push(textarea.value);
+  state.units.push(textarea.value);
   textarea.value = '';
   textarea.focus();
   return state;
 };
 
-const POSTSDisplay = ({}, {posts}) => (
-  <posts-display>
-    {posts.map(POST)}
-  </posts-display>
+const SET_SELECTION = (state) => {
+  state.selections.unshift(getSelectionHtml());
+  return state;
+};
+
+const UnitsDisplay = ({}, {units, mutation}) => (
+  <units-display onMouseUp={mutation(SET_SELECTION)}>
+    {units.map(Unit)}
+  </units-display>
 );
 
-const POST = post => (
-  <post>
+const Unit = unit => (
+  <unit>
     <overlay><span onClick={() => console.log('statistics view')}>s</span></overlay>
-    {post}
-  </post>
+    {unit}
+  </unit>
+);
+
+const UnitAnnotator = ({selection}, {mutation}) => (
+  <unit-annotator>
+    {selection ? <selection>{selection}</selection> : undefined}
+  </unit-annotator>
 );
 
 const InputArea = ({}, {mutation}) => (
   <input-area>
     <textarea autoFocus></textarea>
-    <button onClick={mutation(ADD_POST)}>Post</button>
+    <button onClick={mutation(ADD_UNIT)}>Add</button>
   </input-area>
 );
 
@@ -40,13 +51,14 @@ const TagDetail = () => (
   </tag-detail>
 );
 
-const WWWPrototype = () => (
+const WWWPrototype = ({selections}) => (
   <www-prototype>
     <left>
-      <POSTSDisplay />
+      <UnitsDisplay />
       <InputArea />
     </left>
     <right>
+      {selections.map(selection => <UnitAnnotator selection={selection} />)}
       <Tags />
       <TagDetail /> // ?
     </right>
@@ -54,5 +66,27 @@ const WWWPrototype = () => (
 );
 
 render(
-  WWWPrototype, {posts: []}, document.body
+  WWWPrototype, {selections: [], units: []}, document.body
 );
+
+
+//https://stackoverflow.com/questions/4176923/html-of-selected-text
+
+function getSelectionHtml() {
+    var html = "";
+    if (typeof window.getSelection != "undefined") {
+        var sel = window.getSelection();
+        if (sel.rangeCount) {
+            var container = document.createElement("div");
+            for (var i = 0, len = sel.rangeCount; i < len; ++i) {
+                container.appendChild(sel.getRangeAt(i).cloneContents());
+            }
+            html = container.innerHTML;
+        }
+    } else if (typeof document.selection != "undefined") {
+        if (document.selection.type == "Text") {
+            html = document.selection.createRange().htmlText;
+        }
+    }
+    return html;
+}

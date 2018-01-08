@@ -12,6 +12,8 @@ body {
   www-prototype {
     flex: 1 1 auto;
 
+    display: flex;
+
     left, right {
       display: flex;
       flex-direction: column;
@@ -23,7 +25,7 @@ body {
     }
 
     left {
-      posts-display {
+      units-display {
         flex: 1 1 auto;
 
         display: flex;
@@ -31,13 +33,13 @@ body {
 
         overflow-y: auto;
 
-        post {
+        unit {
           position: relative;
 
           display: block;
 
           margin: 0.1em;
-          padding: 0.1em;
+          padding: 0.25em;
 
           white-space: pre-wrap;
 
@@ -46,8 +48,8 @@ body {
           overlay {
             position: absolute;
 
-            top: 0;
-            right: 0;
+            top: 0.1em;
+            right: 0.25em;
 
             span {
               display: inline-block;
@@ -69,6 +71,24 @@ body {
 
         display: flex;
         flex-direction: column;
+      }
+    }
+
+    right {
+      unit-annotator {
+        padding: 0.1em;
+
+        background-color: #bbb;
+
+        selection {
+          display: block;
+
+          white-space: pre-wrap;
+
+          border: solid 1px #ccc;
+
+          background-color: #fff;
+        }
       }
     }
   }
