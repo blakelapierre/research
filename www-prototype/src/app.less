@@ -44,25 +44,6 @@ body {
           white-space: pre-wrap;
 
           border: solid 1px #ccc;
-
-          overlay {
-            position: absolute;
-
-            top: 0.1em;
-            right: 0.25em;
-
-            span {
-              display: inline-block;
-
-              padding: 0.1em;
-
-              color: #55c;
-
-              cursor: pointer;
-
-              user-select: none;
-            }
-          }
         }
       }
 
@@ -75,20 +56,37 @@ body {
     }
 
     right {
-      unit-annotator {
-        padding: 0.1em;
+      side-by-side {
+        display: flex;
 
-        background-color: #bbb;
+        selections {
+          background-color: #bbb;
+          padding: 0.1em;
 
-        selection {
-          display: block;
+          unit-annotator {
+            display: block;
 
-          white-space: pre-wrap;
+            padding: 0.25em;
 
-          border: solid 1px #ccc;
+            background-color: #ccc;
+            border: solid 1px #ddd;
 
-          background-color: #fff;
+            selection {
+              display: block;
+
+              white-space: pre-wrap;
+
+              border: solid 1px #ccc;
+
+              background-color: #fff;
+            }
+          }
         }
+      }
+
+      log {
+        display: flex;
+        flex-direction: column;
       }
     }
   }

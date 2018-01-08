@@ -4,7 +4,8 @@
   "repository": "https://github.com/blakelapierre/base-preact-cycle",
   "version": "0.0.1",
   "dependencies": {
-    "preact-cycle": "^0.5.1"
+    "preact-cycle": "^0.5.1",
+    "lodash": "^4.17.4"
   },
   "devDependencies": {
     "babel": "^6.23.0",
@@ -44,7 +45,6 @@
     "gulp.spritesmith": "^6.5.1",
     "less-plugin-autoprefix": "^1.5.1",
     "less-plugin-clean-css": "^1.5.1",
-    "lodash": "^4.17.4",
     "multipipe": "^1.0.2",
     "partialify": "^3.1.6",
     "tsify": "^3.0.4",
