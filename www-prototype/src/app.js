@@ -1,10 +1,10 @@
 import { h, render } from 'preact-cycle';
 
-import {groupBy, mapValues} from 'lodash';
+import {filter, groupBy, mapValues} from 'lodash';
 
 function logged (name, fn) {
   return (state, ...args) => {
-    state.log.push({name, args});
+    state.log.push([name, ...filter(args, arg => !(arg instanceof Event))]);
     return fn(state, ...args);
   };
 }
@@ -21,33 +21,31 @@ function loggedUnits(fn) {
   return loggedUnit(fn(FIRE_EVENT));
 
   function FIRE_EVENT(name, ...args) {
-    externalMutation(name)(...args);
+    return externalMutation(name)(...args);
   }
 }
 
+const previousElementSiblingValue = ({target}) => target.previousElementSibling.value;
+
 const {
   ADD_UNIT,
-  PUSH_UNIT,
-  CAPTURE_SELECTED_TEXT,
+  CHECK_SELECTED_TEXT,
   INSERT_SELECTED_TEXT,
   REMOVE_SELECTION,
-  TAG,
   TAG_SELECTION,
   TOGGLE_LOG_DISPLAY
 } = loggedUnits(FIRE_EVENT => ({
-  'ADD_UNIT': (state, {target}) => {
-    const textarea = target.previousElementSibling;
-    FIRE_EVENT(PUSH_UNIT, textarea.value);
-    textarea.value = '';
-    textarea.focus();
+  'ADD_UNIT': (state, value) => {
+    state.units.push(value);
     return state;
   },
-  'PUSH_UNIT': (state, value) => {
-    state.units.push(value);
-  },
-  'CAPTURE_SELECTED_TEXT': (state) => {
+  'CHECK_SELECTED_TEXT': (state) => {
     const selection = getSelectedText().trim();
-    if (selection !== undefined && !selection.match(/^\s*$/) && selection !== (state.selections.length > 0 ? state.selections[0] : '')) FIRE_EVENT(INSERT_SELECTED_TEXT, selection);
+    if (selection !== undefined
+        && !selection.match(/^\s*$/)
+        && selection !== (state.selections.length > 0 ? state.selections[0] : '')) {
+      return FIRE_EVENT(INSERT_SELECTED_TEXT, selection);
+    }
     return state;
   },
   'INSERT_SELECTED_TEXT': (state, selection) => {
@@ -59,15 +57,8 @@ const {
     if (index >= 0) state.selections.splice(index, 1);
     return state;
   },
-  'TAG': (state, selection, tag) => {
+  'TAG_SELECTION': (state, selection, tag) => {
     state.tags.push({selection, tag});
-    return state;
-  },
-  'TAG_SELECTION': (state, selection, {target}) => {
-    const tagInput = target.previousElementSibling;
-    FIRE_EVENT(TAG, selection, tagInput.value);
-    tagInput.value = '';
-    tagInput.focus();
     return state;
   },
   'TOGGLE_LOG_DISPLAY': (state) => {
@@ -77,7 +68,7 @@ const {
 }));
 
 const UnitsDisplay = ({}, {units, mutation}) => (
-  <units-display onMouseUp={mutation(CAPTURE_SELECTED_TEXT)}>
+  <units-display onMouseUp={mutation(CHECK_SELECTED_TEXT)}>
     {units.map(unit => <Unit unit={unit} />)}
   </units-display>
 );
@@ -92,7 +83,7 @@ const UnitAnnotator = ({selection}, {mutation}) => (
   <unit-annotator>
     <selection>{selection}</selection>
     <input type="text" placeholder="tag" />
-    <button onClick={mutation(TAG_SELECTION, selection)}>Tag</button>
+    <button onClick={(m => event => {m(previousElementSiblingValue(event)); event.target.previousElementSibling.value = ''; event.target.previousElementSibling.focus();})(mutation(TAG_SELECTION, selection))}>Tag</button>
     <button onClick={mutation(REMOVE_SELECTION, selection)}>Remove</button>
   </unit-annotator>
 );
@@ -100,7 +91,7 @@ const UnitAnnotator = ({selection}, {mutation}) => (
 const InputArea = ({}, {mutation}) => (
   <input-area>
     <textarea autoFocus></textarea>
-    <button onClick={mutation(ADD_UNIT)}>Add</button>
+    <button onClick={(m => event => {m(previousElementSiblingValue(event)); event.target.previousElementSibling.value = ''; event.target.previousElementSibling.focus();})(mutation(ADD_UNIT))}>Add</button>
   </input-area>
 );
 
@@ -113,7 +104,7 @@ const Selections = ({selections}) => (
 
 const Tags = ({}, {tags}) => (
   <tags>
-    {Object.values(mapValues(groupBy(tags, 'tag'), (selections, tag) => <tag>{tag} {selections.map(s => <selection>{s.selection}</selection>)}</tag>))}
+  {Object.values(mapValues(groupBy(tags, 'tag'), (selections, tag) => <tag><name>{tag}</name> {selections.length} selection{selections.length > 1 ? 's' : ''} <selections>{selections.map(s => <selection>{s.selection}</selection>)}</selections></tag>))}
   </tags>
 );
 
