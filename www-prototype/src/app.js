@@ -36,7 +36,7 @@ const {
   TOGGLE_LOG_DISPLAY
 } = loggedUnits(FIRE_EVENT => ({
   'ADD_UNIT': (state, value) => {
-    state.units.push(value);
+    if (value !== '') state.units.push(value);
     return state;
   },
   'CHECK_SELECTED_TEXT': (state) => {
@@ -79,13 +79,25 @@ const Unit = ({unit}) => (
   </unit>
 );
 
-const UnitAnnotator = ({selection}, {mutation}) => (
+const UnitAnnotator = ({selection}, {tags, mutation}) => (
   <unit-annotator>
+    <remove-button onClick={mutation(REMOVE_SELECTION, selection)} title="Remove">Remove</remove-button>
     <selection>{selection}</selection>
-    <input type="text" placeholder="tag" />
-    <button onClick={(m => event => {m(previousElementSiblingValue(event)); event.target.previousElementSibling.value = ''; event.target.previousElementSibling.focus();})(mutation(TAG_SELECTION, selection))}>Tag</button>
-    <button onClick={mutation(REMOVE_SELECTION, selection)}>Remove</button>
+    <inputs>
+      <input type="text" placeholder="add a tag..." autoFocus />
+      <button onClick={(m => event => {m(previousElementSiblingValue(event)); event.target.previousElementSibling.value = ''; event.target.previousElementSibling.focus();})(mutation(TAG_SELECTION, selection))}>Tag</button>
+    </inputs>
+    <unit-tags>
+      {(Object.values(groupBy(tags, 'selection')[selection] || []).map(({tag}) => <TagEditor tag={tag} />))}
+    </unit-tags>
   </unit-annotator>
+);
+
+const TagEditor = ({tag}) => (
+  <tag-editor>
+    <input type="text" value={tag} />
+    <textarea placeholder="notes"></textarea>
+  </tag-editor>
 );
 
 const InputArea = ({}, {mutation}) => (
@@ -97,14 +109,15 @@ const InputArea = ({}, {mutation}) => (
 
 const Selections = ({selections}) => (
   <selections>
-    Selections:
+    Active Selections:
     {selections.map(selection => <UnitAnnotator selection={selection} />)}
   </selections>
 );
 
 const Tags = ({}, {tags}) => (
   <tags>
-  {Object.values(mapValues(groupBy(tags, 'tag'), (selections, tag) => <tag><name>{tag}</name> {selections.length} selection{selections.length > 1 ? 's' : ''} <selections>{selections.map(s => <selection>{s.selection}</selection>)}</selections></tag>))}
+    <span>Tags</span>
+    {Object.values(mapValues(groupBy(tags, 'tag'), (selections, tag) => <tag><name>{tag}</name> <count>({selections.length})</count>  <selections>{selections.map(s => <selection>{s.selection}</selection>)}</selections></tag>))}
   </tags>
 );
 
@@ -115,8 +128,8 @@ const TagDetail = () => (
 );
 
 const LogDisplay = ({}, {log, logDisplay, mutation}) => (
-  <log onClick={mutation(TOGGLE_LOG_DISPLAY)}>
-    Action Log:
+  <log>
+    <span onClick={mutation(TOGGLE_LOG_DISPLAY)}>Action Log:</span>
     {logDisplay === 'full' ?
        (log.map((v, k) => <entry>{k}: {JSON.stringify(v)}</entry>))
      : <summary>{log.length} items</summary>

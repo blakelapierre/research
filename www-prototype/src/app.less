@@ -56,8 +56,14 @@ body {
     }
 
     right {
+      justify-content: space-between;
+
       side-by-side {
+        flex: 2 1 auto;
+
         display: flex;
+
+        overflow-y: auto;
 
         selections {
           background-color: #bbb;
@@ -71,6 +77,27 @@ body {
             background-color: #ccc;
             border: solid 1px #ddd;
 
+            text-align: right;
+
+            remove-button {
+              display: inline-block;
+
+              height: 1em;
+
+              text-align: center;
+
+              padding: 0.1em;
+
+              font-size: 0.75em;
+              border: solid 1px #333;
+
+              cursor: pointer;
+
+              &:hover {
+                background-color: rgba(0.5, 0.5, 0.5, 0.1);
+              }
+            }
+
             selection {
               display: block;
 
@@ -79,6 +106,20 @@ body {
               border: solid 1px #ccc;
 
               background-color: #fff;
+
+              text-align: left;
+            }
+
+            unit-tags {
+              display: flex;
+              flex-direction: column;
+
+              tag-editor {
+                display: flex;
+                flex-direction: column;
+
+                margin: 0.25em;
+              }
             }
           }
         }
@@ -89,7 +130,13 @@ body {
 
           tag {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+
+            count {
+              line-height: 1em;
+              font-size: 0.65em;
+              font-weight: bold;
+            }
 
             selections {
               display: flex;
@@ -100,8 +147,12 @@ body {
       }
 
       log {
+        flex: 0 1 auto;
+
         display: flex;
         flex-direction: column;
+
+        span {cursor: pointer;}
       }
     }
   }
