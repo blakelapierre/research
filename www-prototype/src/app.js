@@ -151,7 +151,7 @@ const TagDetail = ({tag}, {tags}) => (
   </tag-detail>
 );
 
-const LogDisplay = ({}, {log, logDisplay, mutation}) => (
+const Log = ({}, {log, logDisplay, mutation}) => (
   <log>
     <span onClick={mutation(TOGGLE_LOG_DISPLAY)}>Action Log:</span>
     {logDisplay === 'full' ?
@@ -175,7 +175,7 @@ const WWWPrototype = ({highlightedTag, selections, tags}, {mutation}) => (
         {tags.length > 0 ? <Tags tags={tags} /> : undefined}
         {highlightedTag ? <TagDetail tag={highlightedTag} /> : undefined}
       </side-by-side>
-      <LogDisplay />
+      <Log />
     </right>
   </www-prototype>
 );
