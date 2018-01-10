@@ -24,6 +24,37 @@ body {
       overflow-y: auto;
     }
 
+    previous-sessions {
+      display: flex;
+      flex-direction: column;
+
+      background-color: rgba(127, 127, 127, 0.25);
+
+      span {
+        text-align: center;
+      }
+
+      session {
+        padding: 0.2em;
+
+        font-size: 0.8em;
+
+        border: solid 1px #ccc;
+
+        cursor: pointer;
+
+        background-color: rgba(127, 127, 127, 0.25);
+
+        &:hover {
+          background-color: rgba(127, 127, 127, 0.5);
+        }
+
+        button {
+          font-size: 0.75em;
+        }
+      }
+    }
+
     left {
       units-display {
         flex: 1 1 auto;
