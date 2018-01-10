@@ -94,15 +94,14 @@ const actions = loggedUnits(FIRE_EVENT => ({
     console.log('highlighted', tag);
     return state;
   },
+  'LOAD_LOG': (state, log) => {
+    log.forEach(([name, ...args]) => {
+      FIRE_EVENT(actions[name], ...args);
+    });
+  },
   'LOAD_SESSION': (state, session) => {
     const logData = localStorage.getItem(`research-session-${session.sessionId}`);
-    if (logData) {
-      const parsedData = JSON.parse(logData);
-
-      parsedData.forEach(([name, ...args]) => {
-        FIRE_EVENT(actions[name], ...args);
-      });
-    }
+    if (logData) FIRE_EVENT(actions['LOAD_LOG'], JSON.parse(logData));
     return state;
   },
   'REMOVE_SELECTION': (state, selection) => {
@@ -131,7 +130,7 @@ const actions = loggedUnits(FIRE_EVENT => ({
   },
   'TAG_SELECTION': (state, selection, tag) => {
     const notes = '';
-    state.tags.push({selection, tag, notes});
+    if (!find(state.tags, {tag, selection})) state.tags.push({selection, tag, notes});
     return state;
   },
   'TOGGLE_LOG_DISPLAY': (state) => {
@@ -227,10 +226,11 @@ const Tag = ({tag, selections}, {highlightedTag, mutation}) => (
   </tag>
 );
 
-const TagDetail = ({tag}, {tags}) => (
-  <tag-detail>
-  {filter(tags, ({tag: tag2}) => tag === tag2).map(t => <selection>{t.selection} {t.notes}</selection>)}
-  </tag-detail>
+const TagDetails = ({tag}, {tags}) => (
+  <tag-details>
+    <span>Tag Details:</span>
+    {filter(tags, ({tag: tag2}) => tag === tag2).map(t => <detail><selection>{t.selection}</selection> <notes>{t.notes}</notes></detail>)}
+  </tag-details>
 );
 
 const Log = ({}, {log, logDisplay, mutation}) => (
@@ -248,12 +248,12 @@ const FullLog = ({log}) => (
   </full-log>
 );
 
-const LogSummary = ({log}) => (
+const LogSummary = ({log}, {mutation}) => (
   <summary>
     {log.length} items
 
-    <button>Save File</button>
-    <button>Load File</button>
+    <button onClick={() => download(log)}>Save File</button>
+    <button onClick={() => promptLoad(mutation)}>Load File</button>
   </summary>
 );
 
@@ -270,7 +270,7 @@ const WWWPrototype = ({highlightedTag, previousSessions, selections, tags}, {mut
         {selections.length > 0 ? <Selections selections={selections} /> : undefined}
         &nbsp;
         {tags.length > 0 ? <Tags tags={tags} /> : undefined}
-        {highlightedTag ? <TagDetail tag={highlightedTag} /> : undefined}
+        {highlightedTag ? <TagDetails tag={highlightedTag} /> : undefined}
       </side-by-side>
       <Log />
     </right>
@@ -307,4 +307,39 @@ function getSelectionHtml() {
         }
     }
     return html;
+}
+
+
+function download(log) {
+  const name = prompt("Enter file name", "research.session");
+
+  if (name) {
+    const a = document.createElement('a'),
+          file = new Blob([JSON.stringify(log)], {type: 'text/json'});
+
+    a.href = URL.createObjectURL(file);
+    a.download = name || 'research.session';
+
+    a.click();
+  }
+}
+
+function promptLoad(mutation) {
+  const input = document.createElement('input');
+  input.type = 'file';
+
+  input.addEventListener('change', event => {
+    const file = event.target.files[0];
+
+    const reader = new FileReader();
+
+    reader.addEventListener('load', event => {
+      const text = reader.result;
+      mutation(actions['LOAD_LOG'])(JSON.parse(text));
+    });
+
+    reader.readAsText(file);
+  });
+
+  input.click();
 }
