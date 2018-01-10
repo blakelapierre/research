@@ -317,10 +317,13 @@ function download(log) {
     const a = document.createElement('a'),
           file = new Blob([JSON.stringify(log)], {type: 'text/json'});
 
+    document.body.appendChild(a);
+
     a.href = URL.createObjectURL(file);
     a.download = name || 'research.session';
 
     a.click();
+    a.remove();
   }
 }
 
