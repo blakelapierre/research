@@ -155,10 +155,16 @@ const Log = ({}, {log, logDisplay, mutation}) => (
   <log>
     <span onClick={mutation(TOGGLE_LOG_DISPLAY)}>Action Log:</span>
     {logDisplay === 'full' ?
-       (log.map((v, k) => <entry>{k}: {JSON.stringify(v)}</entry>))
+        <FullLog log={log} />
      : <summary>{log.length} items</summary>
     }
   </log>
+);
+
+const FullLog = ({log}) => (
+  <full-log>
+    {log.map((v, k) => <entry>{k}: {JSON.stringify(v)}</entry>)}
+  </full-log>
 );
 
 const WWWPrototype = ({highlightedTag, selections, tags}, {mutation}) => (
