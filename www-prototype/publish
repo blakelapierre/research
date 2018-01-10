@@ -1,4 +1,5 @@
 #!/bin/sh
 
-cd .dist &&
+cd .dist && \
+git push origin :gh-pages && \
 git push origin gh-pages
