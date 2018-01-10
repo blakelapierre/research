@@ -19,7 +19,6 @@ body {
       flex-direction: column;
 
       width: 50%;
-      max-height: 100%;
 
       overflow-y: auto;
     }
@@ -90,15 +89,22 @@ body {
       justify-content: space-between;
 
       side-by-side {
-        flex: 2 1 auto;
+        flex: 0 1 auto;
 
         display: flex;
 
-        overflow-y: auto;
+        // overflow-y: auto;
 
         selections {
+          flex: 1 1 auto;
+
+          display: flex;
+          flex-direction: column;
+
           background-color: #bbb;
           padding: 0.1em;
+
+          overflow-y: auto;
 
           unit-annotator {
             display: block;
@@ -200,26 +206,42 @@ body {
 
           background-color: rgba(127, 127, 127, 0.5);
 
+          overflow-y: auto;
+
           detail {
+            flex: 0 0 auto;
+
             display: flex;
             flex-direction: column;
 
             padding: 0.25em;
 
             background-color: rgba(127, 127, 127, 0.5);
+            border: solid 1px #ccc;
+
+            white-space: pre-wrap;
+            word-break: break-word;
 
             selection {
               background-color: #fff;
+            }
+
+            notes {
+              padding: 0.25em;
             }
           }
         }
       }
 
       log {
-        flex: 0 1 auto;
+        max-height: 50%;
+
+        flex: 0 0 auto;
 
         display: flex;
         flex-direction: column;
+
+        overflow-y: auto;
 
         span {cursor: pointer;}
 
