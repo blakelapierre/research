@@ -226,11 +226,11 @@ const Tag = ({tag, selections}, {highlightedTag, mutation}) => (
   </tag>
 );
 
-const TagDetails = ({tag}, {tags}) => (
-  <tag-details>
-    <span>Tag Details:</span>
+const TagNotes = ({tag}, {tags}) => (
+  <tag-notes>
+    <span>Tag Notes:</span>
     {filter(tags, ({tag: tag2}) => tag === tag2).map(t => <detail><selection>{t.selection}</selection> <notes>{t.notes}</notes></detail>)}
-  </tag-details>
+  </tag-notes>
 );
 
 const Log = ({}, {log, logDisplay, mutation}) => (
@@ -270,7 +270,7 @@ const WWWPrototype = ({highlightedTag, previousSessions, selections, tags}, {mut
         {selections.length > 0 ? <Selections selections={selections} /> : undefined}
         &nbsp;
         {tags.length > 0 ? <Tags tags={tags} /> : undefined}
-        {highlightedTag ? <TagDetails tag={highlightedTag} /> : undefined}
+        {highlightedTag ? <TagNotes tag={highlightedTag} /> : undefined}
       </side-by-side>
       <Log />
     </right>
